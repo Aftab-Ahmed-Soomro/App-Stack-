@@ -15,6 +15,7 @@ import Startups from './components/Startups'
 import Domain from './components/Domain'
 import Company from './components/Company'
 import Footer from './components/Footer'
+// import { ContactUs } from './components/Contact'
 
 const App = () => {
   useEffect(() => {
@@ -40,6 +41,7 @@ const App = () => {
       <Startups />
       <Domain />
       <Company />
+      {/* <ContactUs /> */}
       <Footer />
     </div>
   )

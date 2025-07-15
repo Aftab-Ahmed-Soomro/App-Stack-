@@ -1,14 +1,62 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import AchievementCard from '../common/AchievementCard'
 import Button1 from '../common/Button1'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useEffect } from 'react';
+import emailjs from '@emailjs/browser';
+import { ToastContainer, toast } from 'react-toastify';
+import ReCAPTCHA from "react-google-recaptcha";
 
 const FormSection = () => {
+  // AOS
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
+
+  // Form
+  const form = useRef();
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+
+    if (!isVerified) {
+      toast.error("Please complete the captcha verification!");
+      return;
+    }
+
+    emailjs
+      .sendForm('service_8b0c48v', 'template_h9cadde', form.current, {
+        publicKey: '5v00WLzmZ5f_Fal5V',
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+          toast.success("Form submitted successfully!");
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+          toast.error("Failed to submit form. Please try again.");
+        },
+      );
+  };
+
+  // ReCaptcha
+  const [isVerified, setIsVerified] = useState(false);
+  function onChange(value) {
+    console.log("Captcha value:", value);
+    setIsVerified(true);
+  }
+
+  const handleSubmit = (e) => {
+    if (!isVerified) {
+      e.preventDefault();
+      toast.error("Please complete the captcha verification!");
+      return;
+    }
+    sendEmail(e);
+  };
+
   return (
     <div className='bg-[#F5F9FB] px-4 sm:px-6 md:px-10 lg:px-20 py-8 md:py-14 flex flex-col lg:flex-row justify-between items-center'>
       {/* Left Side */}
@@ -40,16 +88,18 @@ const FormSection = () => {
           <h1 className='text-white text-lg md:text-xl font-semibold text-center'>Get in Touch With Experts Now</h1>
         </div>
         <div className="bg-white px-4 sm:px-6 md:px-8 py-4 sm:py-6 rounded-b-2xl w-full max-w-md mx-auto shadow-sm">
-          <form action="" className="flex flex-col gap-3 md:gap-4">
+          <form ref={form} onSubmit={handleSubmit} className="flex flex-col gap-3 md:gap-4">
             <input
               className="border border-gray-300 hover:border-black rounded-md px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 w-full text-sm md:text-base transition-colors duration-200"
               type="text"
               placeholder="Name"
+              name="name"
             />
             <input
               className="border border-gray-300 hover:border-black rounded-md px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 w-full text-sm md:text-base transition-colors duration-200"
               type="text"
               placeholder="Email Address"
+              name="email" 
             />
             <input
               className="border border-gray-300 hover:border-black rounded-md px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 w-full text-sm md:text-base transition-colors duration-200"
@@ -57,21 +107,26 @@ const FormSection = () => {
               placeholder="Mobile Number"
             />
             <textarea
-              name=""
-              id=""
+              name="message"
               placeholder="What is your project about?"
-              className="border border-gray-300 hover:border-black rounded-md px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 w-full text-sm md:text-base transition-colors duration-200 resize-none"
+              className="border border-gray-300 hover:border-black rounded-md px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 w-full text-sm md:text-base transition-colors duration-200 resize-none mb-4"
               rows={4}
             ></textarea>
+            <ReCAPTCHA
+              sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+              onChange={onChange}
+            />
             <button
               className="bg-[#0071A0] hover:bg-black cursor-pointer transition-all duration-300 text-white px-4 py-2 sm:px-6 rounded-[4px] font-semibold flex justify-center items-center mt-2 md:mt-4 w-full sm:w-[100px] h-10 sm:h-12 mb-2 sm:mb-4 text-sm sm:text-base"
               type="submit"
+              value="Send"
             >
               Send
             </button>
           </form>
         </div>
       </div>
+            <ToastContainer />
     </div>
   )
 }
